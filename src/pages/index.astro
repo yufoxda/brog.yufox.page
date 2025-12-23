@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 
 // ブログ記事を取得
-const posts = await Astro.glob('./*.md');
+const posts = Object.values(import.meta.glob('./*.md', { eager: true }));
 
 // 日付順にソート（新しい順）
 const sortedPosts = posts
