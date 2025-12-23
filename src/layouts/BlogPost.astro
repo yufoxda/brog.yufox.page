@@ -1,0 +1,314 @@
+---
+import Layout from './Layout.astro';
+
+interface Props {
+	frontmatter: {
+		title: string;
+		date: string;
+		description?: string;
+		tags?: string[];
+	};
+	headings: { depth: number; slug: string; text: string }[];
+}
+
+const { frontmatter, headings } = Astro.props;
+const formattedDate = new Date(frontmatter.date).toLocaleDateString('ja-JP', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric'
+});
+
+// 目次用に見出しをフィルタリング（h2とh3のみ）
+const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+---
+
+<Layout title={`${frontmatter.title} | Yufox Blog`}>
+	<div class="blog-container">
+		<article class="blog-post">
+			<header class="post-header">
+				<time datetime={frontmatter.date}>{formattedDate}</time>
+				<h1>{frontmatter.title}</h1>
+				{frontmatter.description && <p class="description">{frontmatter.description}</p>}
+				{frontmatter.tags && (
+					<div class="tags">
+						{frontmatter.tags.map((tag) => (
+							<span class="tag">#{tag}</span>
+						))}
+					</div>
+				)}
+			</header>
+			<div class="post-content">
+				<slot />
+			</div>
+			<footer class="post-footer">
+				<a href="/" class="back-link">← 記事一覧に戻る</a>
+			</footer>
+		</article>
+		{tocHeadings.length > 0 && (
+			<aside class="sidebar">
+				<nav class="table-of-contents">
+					<h2>📖 目次</h2>
+					<ul>
+						{tocHeadings.map((heading) => (
+							<li class={`toc-level-${heading.depth}`}>
+								<a href={`#${heading.slug}`} data-target={heading.slug}>{heading.text}</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			</aside>
+		)}
+	</div>
+</Layout>
+
+<script>
+	// 現在表示中のセクションをハイライト
+	function setupTocHighlight() {
+		const tocLinks = document.querySelectorAll('.table-of-contents a');
+		const headings = document.querySelectorAll('.post-content h2, .post-content h3');
+		
+		if (tocLinks.length === 0 || headings.length === 0) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						const id = entry.target.id;
+						tocLinks.forEach((link) => {
+							if (link.getAttribute('data-target') === id) {
+								link.classList.add('active');
+							} else {
+								link.classList.remove('active');
+							}
+						});
+					}
+				});
+			},
+			{
+				rootMargin: '-100px 0px -66%',
+				threshold: 0
+			}
+		);
+
+		headings.forEach((heading) => {
+			observer.observe(heading);
+		});
+	}
+
+	// ページ読み込み時に実行
+	setupTocHighlight();
+
+	// ページ遷移後も実行（Astroのビュートランジション対応）
+	document.addEventListener('astro:page-load', setupTocHighlight);
+</script>
+
+<style>
+	.blog-container {
+		display: flex;
+		gap: 2rem;
+		align-items: flex-start;
+		max-width: 1200px;
+		margin: 0 auto;
+	}
+
+	.blog-post {
+		flex: 1;
+		min-width: 0;
+		animation: fadeIn 0.5s ease-out;
+	}
+
+	.sidebar {
+		width: 280px;
+		flex-shrink: 0;
+		position: sticky;
+		top: 90px;
+		align-self: flex-start;
+		max-height: calc(100vh - 110px);
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.post-header {
+		margin-bottom: 3rem;
+		padding-bottom: 2rem;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.post-header time {
+		display: inline-block;
+		color: var(--color-accent);
+		font-size: 0.9rem;
+		font-weight: 500;
+		margin-bottom: 0.5rem;
+	}
+
+	.post-header h1 {
+		margin: 0.5rem 0 1rem;
+		font-size: 2.2rem;
+		line-height: 1.3;
+	}
+
+	.description {
+		font-size: 1.1rem;
+		color: var(--color-text-secondary);
+		margin-bottom: 1rem;
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.tag {
+		background: var(--color-accent-light);
+		color: var(--color-accent);
+		padding: 0.3rem 0.8rem;
+		border-radius: 20px;
+		font-size: 0.85rem;
+		font-weight: 500;
+	}
+
+	.post-content {
+		font-size: 1.05rem;
+	}
+
+	.post-content :global(h2:first-child),
+	.post-content :global(h3:first-child) {
+		margin-top: 0;
+	}
+
+	.table-of-contents {
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		padding: 1.5rem;
+		max-height: calc(100vh - 110px);
+		overflow-y: auto;
+	}
+	
+	.table-of-contents::-webkit-scrollbar {
+		width: 6px;
+	}
+	
+	.table-of-contents::-webkit-scrollbar-track {
+		background: var(--color-bg);
+		border-radius: 3px;
+	}
+	
+	.table-of-contents::-webkit-scrollbar-thumb {
+		background: var(--color-border);
+		border-radius: 3px;
+	}
+	
+	.table-of-contents::-webkit-scrollbar-thumb:hover {
+		background: var(--color-accent);
+	}
+
+	.table-of-contents h2 {
+		font-size: 1rem;
+		margin: 0 0 1rem;
+		padding: 0;
+		border: none;
+		color: var(--color-text);
+	}
+
+	.table-of-contents ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.table-of-contents li {
+		margin: 0;
+		padding: 0;
+	}
+
+	.table-of-contents a {
+		display: block;
+		padding: 0.4rem 0 0.4rem 1rem;
+		color: var(--color-text-secondary);
+		text-decoration: none;
+		transition: all 0.2s;
+		border-left: 2px solid transparent;
+		font-size: 0.9rem;
+		line-height: 1.5;
+	}
+
+	.table-of-contents a:hover {
+		color: var(--color-accent);
+		border-left-color: var(--color-accent);
+		opacity: 1;
+	}
+
+	.table-of-contents a.active {
+		color: var(--color-accent);
+		border-left-color: var(--color-accent);
+	}
+
+	.toc-level-2 {
+		font-weight: 500;
+	}
+
+	.toc-level-3 {
+		padding-left: 1rem;
+		font-size: 0.85rem;
+	}
+
+	.toc-level-3 a {
+		color: var(--color-text-secondary);
+		opacity: 0.8;
+	}
+
+	@media (max-width: 1024px) {
+		.blog-container {
+			flex-direction: column;
+		}
+
+		.sidebar {
+			width: 100%;
+			order: -1;
+            
+		}
+
+		.table-of-contents {
+			position: static;
+			max-height: none;
+		}
+	}
+
+	@media (max-width: 640px) {
+		margin-top: 4rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.back-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-weight: 500;
+		color: var(--color-accent);
+		transition: transform 0.2s;
+	}
+
+	.back-link:hover {
+		transform: translateX(-4px);
+		opacity: 1;
+	}
+
+	@media (max-width: 640px) {
+		.post-header h1 {
+			font-size: 1.8rem;
+		}
+	}
+</style>
