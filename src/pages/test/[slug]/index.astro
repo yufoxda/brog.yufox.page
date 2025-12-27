@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import BlogPost from "../../../layouts/BlogPost.astro";
+import { getCollection, getEntry } from "astro:content";
+import { render } from "astro:content";
+
+
+
+export async function getStaticPaths() {
+  const allBlogPosts = await getCollection('posts');
+
+  return allBlogPosts.map((post) => ({
+	params: { slug: post.id },
+	props: { post },
+  }));
+}
+
+
+const { slug } = Astro.params;
+if (!slug) {
+	return Astro.rewrite("/404");
+}
+
+
+const post = await getEntry("posts", slug);
+if (!post) {
+	return Astro.rewrite("/404");
+}
+const { Content, headings } = await render(post);
+
+// frontmatter形式に変換
+const frontmatter = {
+	title: post.data.title,
+	date: post.data.launch_date?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+	description: post.data.destination || '',
+	tags: post.data.tags || [],
+};
+
+---
+
+<BlogPost frontmatter={frontmatter} headings={headings}>
+    <Content/>
+</BlogPost>
