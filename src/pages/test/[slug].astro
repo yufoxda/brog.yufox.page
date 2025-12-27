@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export function getStaticPaths() {
+	return [
+		{ params: { slug: '2025-12-20-0' } },
+		{ params: { slug: 'great-post' } },
+	];
+}
+const { slug } = Astro.params;
+
+const Content = await import(`../../contents/${slug}.md`).then(mod => mod.default);
+---
+
+<Layout title={ slug }>
+    <Content/>
+</Layout>
