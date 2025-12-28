@@ -1,0 +1,33 @@
+<header>
+	<nav>
+		<a href="/" class="logo">Yufox Blog</a>
+	</nav>
+</header>
+
+<style>
+    header {
+        background: var(--color-bg-secondary);
+        border-bottom: 1px solid var(--color-border);
+        padding: 16px 32px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    nav {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--color-text);
+    }
+    .logo:hover {
+        color: var(--color-accent);
+        opacity: 1;
+    }
+</style>
