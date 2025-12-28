@@ -1,20 +1,22 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
 
 // ブログ記事を取得
-const posts = Object.values(import.meta.glob('./*.md', { eager: true }));
+const posts = await getCollection('posts');
 
 // 日付順にソート（新しい順）
 const sortedPosts = posts
-	.filter(post => post.frontmatter?.title)
+	.filter(post => post.data?.title)
 	.sort((a, b) => {
-		const dateA = new Date(a.frontmatter.date || '2025-01-01');
-		const dateB = new Date(b.frontmatter.date || '2025-01-01');
+		const dateA = new Date(a.data.launch_date || '2025-01-01');
+		const dateB = new Date(b.data.launch_date || '2025-01-01');
 		return dateB.getTime() - dateA.getTime();
 	});
 
-function formatDate(dateStr: string) {
-	return new Date(dateStr).toLocaleDateString('ja-JP', {
+function formatDate(date: Date | string) {
+	const dateObj = date instanceof Date ? date : new Date(date);
+	return dateObj.toLocaleDateString('ja-JP', {
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric'
@@ -34,22 +36,22 @@ function formatDate(dateStr: string) {
 			<ul class="posts-list">
 				{sortedPosts.map((post) => (
 					<li>
-						<a href={post.url} class="post-card">
+						<a href={`/${post.id}`} class="post-card">
 							<div class="post-info">
-								<time datetime={post.frontmatter.date}>
-									{formatDate(post.frontmatter.date)}
+								<time datetime={post.data.launch_date.toISOString()}>
+									{formatDate(post.data.launch_date)}
 								</time>
-								{post.frontmatter.tags && (
+								{post.data.tags && post.data.tags.length > 0 && (
 									<div class="tags">
-										{post.frontmatter.tags.slice(0, 3).map((tag: string) => (
+										{post.data.tags.slice(0, 3).map((tag: string) => (
 											<span class="tag">#{tag}</span>
 										))}
 									</div>
 								)}
 							</div>
-							<h3>{post.frontmatter.title}</h3>
-							{post.frontmatter.description && (
-								<p class="description">{post.frontmatter.description}</p>
+							<h3>{post.data.title}</h3>
+							{post.data.destination && (
+								<p class="description">{post.data.destination}</p>
 							)}
 							<span class="read-more">続きを読む →</span>
 						</a>
