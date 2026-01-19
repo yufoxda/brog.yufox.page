@@ -111,7 +111,7 @@ const tocHeadings = headings.filter(h => h.depth >= 1);
 		display: flex;
 		gap: 3rem;
 		align-items: flex-start;
-		max-width: 1200px;
+		max-width: 1400px;
 		margin: 0 auto;
 		position: relative;
 	}
@@ -119,6 +119,7 @@ const tocHeadings = headings.filter(h => h.depth >= 1);
 	.blog-post {
 		flex: 1;
 		min-width: 0;
+		max-width: 100%;
 		background: var(--color-surface);
 		padding: 2.5rem;
 		border-radius: var(--radius-lg);
@@ -188,6 +189,8 @@ const tocHeadings = headings.filter(h => h.depth >= 1);
 		font-size: 1.1rem;
 		line-height: 1.8;
 		color: var(--color-text-main);
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 
 	/* Markdown Content Styling */
@@ -282,9 +285,11 @@ const tocHeadings = headings.filter(h => h.depth >= 1);
 
 	.post-content :global(img) {
 		max-width: 100%;
+		height: auto;
 		border-radius: var(--radius-md);
 		border: 1px solid var(--color-border);
 		margin: 2rem 0;
+		display: block;
 	}
 
 	.post-content :global(code) {
@@ -300,15 +305,42 @@ const tocHeadings = headings.filter(h => h.depth >= 1);
 		background: #1a1a2e;
 		padding: 1.5rem;
 		border-radius: var(--radius-md);
-		overflow: auto;
+		overflow-x: auto;
+		overflow-y: auto;
+		max-width: 100%;
 		margin: 2rem 0;
 		box-shadow: var(--shadow-sm);
+		-webkit-overflow-scrolling: touch;
 	}
 	
 	.post-content :global(pre code) {
 		background: transparent;
 		color: inherit;
 		padding: 0;
+	}
+	
+	.post-content :global(table) {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 2rem 0;
+		overflow-x: auto;
+		display: block;
+	}
+	
+	.post-content :global(th),
+	.post-content :global(td) {
+		padding: 0.75rem;
+		text-align: left;
+		border: 1px solid var(--color-border);
+	}
+	
+	.post-content :global(th) {
+		background: var(--color-bg);
+		font-weight: 600;
+	}
+	
+	.post-content :global(tr:nth-child(even)) {
+		background: rgba(0, 0, 0, 0.02);
 	}
 
 	.table-of-contents {
@@ -439,7 +471,29 @@ const tocHeadings = headings.filter(h => h.depth >= 1);
 		}
 		
 		.post-header h1 {
-			font-size: 2rem;
+			font-size: 1.75rem;
+		}
+		
+		.post-content {
+			font-size: 1rem;
+		}
+		
+		.post-content :global(pre) {
+			padding: 1rem;
+			margin: 1.5rem -0.5rem;
+			border-radius: var(--radius-sm);
+		}
+		
+		.post-content :global(h1) {
+			font-size: 1.5rem;
+		}
+		
+		.post-content :global(h2) {
+			font-size: 1.3rem;
+		}
+		
+		.post-content :global(h3) {
+			font-size: 1.15rem;
 		}
 	}
 </style>
