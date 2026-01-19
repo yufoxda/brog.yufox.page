@@ -45,7 +45,7 @@ const { title = "Yufox Blog" } = Astro.props;
 		--font-sans: 'Inter', 'Noto Sans JP', sans-serif;
 		
 		/* Spacing & Layout */
-		--max-width: 960px;
+		--max-width: 1200px;
 		--header-height: 70px;
 		--radius-sm: 8px;
 		--radius-md: 12px;
@@ -71,12 +71,14 @@ const { title = "Yufox Blog" } = Astro.props;
 		line-height: 1.7;
 		scroll-behavior: smooth;
 		-webkit-font-smoothing: antialiased;
+		width: 100%;
 	}
 
 	body {
 		min-height: 100vh;
 		display: flex;
 		flex-direction: column;
+		width: 100%;
 	}
 
 	main {
@@ -85,6 +87,12 @@ const { title = "Yufox Blog" } = Astro.props;
 		max-width: var(--max-width);
 		margin: 0 auto;
 		padding: 2rem 1.5rem;
+	}
+	
+	@media (max-width: 768px) {
+		main {
+			padding: 1.5rem 1rem;
+		}
 	}
 
 	a {
